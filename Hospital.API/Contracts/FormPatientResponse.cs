@@ -10,6 +10,6 @@ namespace Hospital.API.Contracts
         string Address,
         DateOnly BirthDate,
         Sex Sex,
-        string hospitalSitenumber
+        string hospitalSiteNumber
         );
 }

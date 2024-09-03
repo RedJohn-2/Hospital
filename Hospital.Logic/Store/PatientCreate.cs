@@ -18,7 +18,7 @@ namespace Hospital.Logic.Store
 
         public string Address { get; init; } = null!;
 
-        public DateOnly BirthDate { get; init; }
+        public DateTime BirthDate { get; init; }
 
         public Sex Sex { get; init; }
 

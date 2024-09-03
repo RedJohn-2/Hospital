@@ -27,7 +27,7 @@ namespace Hospital.Persistence.Repositories
                 Surname = patient.Surname,
                 Patronymic = patient.Patronymic,
                 Address = patient.Address,
-                BirthDate = patient.BirthDate,
+                BirthDate = DateOnly.FromDateTime(patient.BirthDate),
                 Sex = patient.Sex
             };
 
@@ -102,7 +102,7 @@ namespace Hospital.Persistence.Repositories
                 existedPatient.Address = patient.Address;
 
             if (patient.BirthDate.HasValue)
-                existedPatient.BirthDate = patient.BirthDate.Value;
+                existedPatient.BirthDate = DateOnly.FromDateTime(patient.BirthDate.Value);
 
             if (patient.Sex.HasValue)
                 existedPatient.Sex = patient.Sex.Value;
