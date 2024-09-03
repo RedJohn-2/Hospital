@@ -14,7 +14,7 @@ namespace Hospital.Persistence
 
         public DbSet<Patient> Patients { get; set; } = null!;
 
-        public DbSet<Office> Office { get; set; } = null!;
+        public DbSet<Office> Offices { get; set; } = null!;
 
         public DbSet<HospitalSite> HospitalSites { get; set; } = null!;
 
@@ -22,9 +22,5 @@ namespace Hospital.Persistence
 
         public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options) {}
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-
-        }
     }
 }

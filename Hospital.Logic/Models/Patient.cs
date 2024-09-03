@@ -23,6 +23,6 @@ namespace Hospital.Logic.Models
 
         public Sex Sex { get; set; }
 
-        public Office Office { get; set; } = null!;
+        public HospitalSite Site { get; set; } = null!;
     }
 }

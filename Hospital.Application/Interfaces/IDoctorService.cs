@@ -1,20 +1,20 @@
 ﻿using Hospital.Logic.Models;
+using Hospital.Logic.Store;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hospital.Logic.Store
+namespace Hospital.Application.Interfaces
 {
-    public interface IDoctorStore
+    public interface IDoctorService
     {
-        Task Create(Doctor doctor);
+        Task Add(Doctor doctor);
 
         Task Update(long doctorId, DoctorUpdate doctor);
 
-        Task Delete(long id);
+        Task Delete(long doctorId);
 
         Task<Doctor> GetById(long id);
 
