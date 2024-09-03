@@ -19,9 +19,23 @@ namespace Hospital.Persistence.Repositories
             _context = context;
         }
 
-        public async Task Create(Doctor doctor)
+        public async Task Create(DoctorCreate doctor)
         {
-            await _context.Doctors.AddAsync(doctor);
+            var newDoctor = new Doctor
+            {
+                FullName = doctor.FullName
+            };
+
+            await CheckAndFillReferencePreperties(
+                newDoctor, 
+                doctor.SiteId,
+                doctor.SpecializationId,
+                doctor.OfficeId
+                );
+
+            await _context.Doctors.AddAsync(newDoctor);
+
+            await _context.SaveChangesAsync();
         }
 
         public async Task Delete(long id)
@@ -49,14 +63,20 @@ namespace Hospital.Persistence.Repositories
             {
                 "id" => _context.Doctors.OrderBy(d => d.Id),
                 "fullname" => _context.Doctors.OrderBy(d => d.FullName),
-                "office" => _context.Doctors.OrderBy(d => d.Office.Id),
-                "site" => _context.Doctors.OrderBy(d => d.Site == null ? long.MaxValue : d.Site.Id),
-                "specialization" => _context.Doctors.OrderBy(d => d.Specialization.Id),
+                "office" => _context.Doctors.OrderBy(d => d.OfficeId),
+                "site" => _context.Doctors.OrderBy(d => d.HospitalSiteId == null ? long.MaxValue : d.HospitalSiteId),
+                "specialization" => _context.Doctors.OrderBy(d => d.SpecializationId),
                 _ => throw new ArgumentException()
             };
 
 
-            return await doctorsQuery.Skip(pageSize * page).Take(pageSize).ToListAsync();
+            return await doctorsQuery
+                .Skip(pageSize * page)
+                .Take(pageSize)
+                .Include(d => d.Office)
+                .Include(d => d.Site)
+                .Include(d => d.Specialization)
+                .ToListAsync();
         }
 
         public async Task Update(long doctorId, DoctorUpdate doctor)
@@ -69,37 +89,52 @@ namespace Hospital.Persistence.Repositories
             if (doctor.FullName is not null)
                 existedDoctor.FullName = doctor.FullName;
 
-            if (doctor.SiteId is not null)
+            await CheckAndFillReferencePreperties(
+                existedDoctor, 
+                doctor.SiteId, 
+                doctor.SpecializationId,
+                doctor.OfficeId
+                );
+
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task CheckAndFillReferencePreperties(
+            Doctor existedDoctor,
+            long? siteId, 
+            long? specializationId,
+            long? officeId
+            )
+        {
+            if (siteId is not null)
             {
                 var site = await _context.HospitalSites
-                    .FirstOrDefaultAsync(s => s.Id == doctor.SiteId);
+                    .FirstOrDefaultAsync(s => s.Id == siteId);
 
                 if (site is null)
                     throw new KeyNotFoundException();
                 existedDoctor.Site = site;
             }
 
-            if (doctor.SpecializationId is not null)
+            if (specializationId is not null)
             {
                 var specialization = await _context.Specializations
-                    .FirstOrDefaultAsync(s => s.Id == doctor.SpecializationId);
+                    .FirstOrDefaultAsync(s => s.Id == specializationId);
 
                 if (specialization is null)
                     throw new KeyNotFoundException();
                 existedDoctor.Specialization = specialization;
             }
 
-            if (doctor.OfficeId is not null)
+            if (officeId is not null)
             {
                 var office = await _context.Offices
-                    .FirstOrDefaultAsync(s => s.Id == doctor.OfficeId);
+                    .FirstOrDefaultAsync(s => s.Id == officeId);
 
                 if (office is null)
                     throw new KeyNotFoundException();
                 existedDoctor.Office = office;
             }
-
-            await _context.SaveChangesAsync();
         }
     }
 }

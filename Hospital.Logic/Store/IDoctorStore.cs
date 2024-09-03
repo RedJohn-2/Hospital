@@ -10,7 +10,7 @@ namespace Hospital.Logic.Store
 {
     public interface IDoctorStore
     {
-        Task Create(Doctor doctor);
+        Task Create(DoctorCreate doctor);
 
         Task Update(long doctorId, DoctorUpdate doctor);
 

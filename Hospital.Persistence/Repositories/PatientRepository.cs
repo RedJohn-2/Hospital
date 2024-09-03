@@ -19,9 +19,23 @@ namespace Hospital.Persistence.Repositories
             _context = context; 
         }
 
-        public async Task Create(Patient patient)
+        public async Task Create(PatientCreate patient)
         {
-            await _context.Patients.AddAsync(patient);
+            var newPatient = new Patient
+            {
+                Name = patient.Name,
+                Surname = patient.Surname,
+                Patronymic = patient.Patronymic,
+                Address = patient.Address,
+                BirthDate = patient.BirthDate,
+                Sex = patient.Sex
+            };
+
+            await CheckAndFillReferencesProperties(newPatient, patient.SiteId);
+
+            await _context.Patients.AddAsync(newPatient);
+
+            await _context.SaveChangesAsync();
         }
 
         public async Task Delete(long id)
@@ -54,12 +68,16 @@ namespace Hospital.Persistence.Repositories
                 "address" => _context.Patients.OrderBy(p => p.Address),
                 "birthdate" => _context.Patients.OrderBy(p => p.BirthDate),
                 "sex" => _context.Patients.OrderBy(p => p.Sex),
-                "site" => _context.Patients.OrderBy(p => p.Site.Id),
+                "site" => _context.Patients.OrderBy(p => p.HospitalSiteId),
                 _ => throw new ArgumentException()
             };
 
 
-            return await patientsQuery.Skip(pageSize * page).Take(pageSize).ToListAsync();
+            return await patientsQuery
+                .Skip(pageSize * page)
+                .Take(pageSize)
+                .Include(p => p.Site)
+                .ToListAsync();
         }
 
         
@@ -84,21 +102,27 @@ namespace Hospital.Persistence.Repositories
                 existedPatient.Address = patient.Address;
 
             if (patient.BirthDate.HasValue)
-                existedPatient.BirthDate = patient.BirthDate.Value;  
-                
+                existedPatient.BirthDate = patient.BirthDate.Value;
+
             if (patient.Sex.HasValue)
                 existedPatient.Sex = patient.Sex.Value;
 
-            if (patient.SiteId is not null)
+            await CheckAndFillReferencesProperties(existedPatient, patient.SiteId);
+
+            await _context.SaveChangesAsync();
+        }
+
+        private async Task CheckAndFillReferencesProperties(Patient existedPatient, long? siteId)
+        {
+            if (siteId is not null)
             {
-                var site = await _context.HospitalSites.FirstOrDefaultAsync(s => s.Id == patient.SiteId);
+                var site = await _context.HospitalSites.FirstOrDefaultAsync(s => s.Id == siteId);
 
                 if (site is null)
                     throw new KeyNotFoundException();
+
                 existedPatient.Site = site;
             }
-
-            await _context.SaveChangesAsync();
         }
     }
 }

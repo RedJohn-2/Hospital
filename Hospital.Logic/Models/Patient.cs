@@ -24,5 +24,7 @@ namespace Hospital.Logic.Models
         public Sex Sex { get; set; }
 
         public HospitalSite Site { get; set; } = null!;
+
+        public long HospitalSiteId { get; set; }
     }
 }

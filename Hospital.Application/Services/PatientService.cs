@@ -17,7 +17,7 @@ namespace Hospital.Application.Services
         {
             _patientStore = patientStore;
         }
-        public async Task Add(Patient patient)
+        public async Task Add(PatientCreate patient)
         {
             await _patientStore.Create(patient);
         }

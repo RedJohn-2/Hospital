@@ -10,7 +10,7 @@ namespace Hospital.Application.Interfaces
 {
     public interface IDoctorService
     {
-        Task Add(Doctor doctor);
+        Task Add(DoctorCreate doctor);
 
         Task Update(long doctorId, DoctorUpdate doctor);
 

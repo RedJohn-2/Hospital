@@ -14,8 +14,14 @@ namespace Hospital.Logic.Models
 
         public Specialization Specialization { get; set; } = null!;
 
+        public long SpecializationId { get; set; }
+
         public Office Office { get; set; } = null!;
 
+        public long OfficeId { get; set; }
+
         public HospitalSite? Site { get; set; }
+
+        public long? HospitalSiteId { get; set; }
     }
 }
